@@ -1,0 +1,485 @@
+@import "tailwindcss";
+
+/* ============================================
+   AKL's Knowledge — MODERN DESIGN SYSTEM
+   Soft depth. Warm neutrals. Quiet confidence.
+   ============================================ */
+
+@theme {
+  /* Background & Surfaces — Dark Theme (AKL's Knowledge) */
+  --color-sb-bg: #0d1117;
+  --color-sb-surface: #161b22;
+  --color-sb-surface-alt: #1c2128;
+  --color-sb-elevated: #1c2128;
+
+  /* Text */
+  --color-sb-text: #e6edf3;
+  --color-sb-text-secondary: #8b949e;
+  --color-sb-text-muted: #6e7681;
+  --color-sb-text-inverse: #0d1117;
+
+  /* Borders */
+  --color-sb-border: #30363d;
+  --color-sb-border-strong: #484f58;
+
+  /* Accent Colors */
+  --color-sb-accent: #58a6ff;
+  --color-sb-success: #3fb950;
+  --color-sb-warning: #d29922;
+  --color-sb-error: #f85149;
+  --color-sb-yellow: #d29922;
+  --color-sb-pink: #f778ba;
+  --color-sb-blue: #58a6ff;
+  --color-sb-green: #3fb950;
+  --color-sb-orange: #d29922;
+  --color-sb-purple: #bc8cff;
+  --color-sb-red: #f85149;
+
+  /* Accent Tints (subtle backgrounds) */
+  --color-sb-yellow-tint: rgba(210, 153, 34, 0.1);
+  --color-sb-blue-tint: rgba(88, 166, 255, 0.1);
+  --color-sb-green-tint: rgba(63, 185, 80, 0.1);
+  --color-sb-pink-tint: rgba(247, 120, 186, 0.1);
+  --color-sb-purple-tint: rgba(188, 140, 255, 0.1);
+  --color-sb-orange-tint: rgba(210, 153, 34, 0.1);
+
+  /* PARA Category Colors */
+  --color-sb-projects: #d29922;
+  --color-sb-areas: #58a6ff;
+  --color-sb-resources: #3fb950;
+  --color-sb-archive: #484f58;
+
+  /* PARA text colors */
+  --color-sb-projects-text: #e6edf3;
+  --color-sb-areas-text: #e6edf3;
+  --color-sb-resources-text: #e6edf3;
+  --color-sb-archive-text: #8b949e;
+
+  /* Shadows — dark theme */
+  --shadow-sb-xs: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-sb-sm: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-sb: 0 1px 4px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+  --shadow-sb-md: 0 4px 12px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
+  --shadow-sb-lg: 0 8px 24px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.2);
+  --shadow-sb-xl: 0 16px 48px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.2);
+  --shadow-sb-inner: inset 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-sb-focus: 0 0 0 3px rgba(88,166,255,0.25);
+
+  /* Typography */
+  --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-editor: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+  /* Radius */
+  --radius-sb-sm: 6px;
+  --radius-sb: 10px;
+  --radius-sb-lg: 14px;
+  --radius-sb-xl: 20px;
+  --radius-sb-full: 9999px;
+}
+
+/* Base styles */
+* {
+  border-color: var(--color-sb-border);
+}
+
+body {
+  font-family: var(--font-display);
+  background-color: var(--color-sb-bg);
+  color: var(--color-sb-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Border */
+.sb-border {
+  border: 1px solid var(--color-sb-border);
+}
+
+.sb-border-strong {
+  border: 1px solid var(--color-sb-border-strong);
+}
+
+/* Shadows */
+.sb-shadow-xs { box-shadow: var(--shadow-sb-xs); }
+.sb-shadow-sm { box-shadow: var(--shadow-sb-sm); }
+.sb-shadow { box-shadow: var(--shadow-sb); }
+.sb-shadow-md { box-shadow: var(--shadow-sb-md); }
+.sb-shadow-lg { box-shadow: var(--shadow-sb-lg); }
+.sb-shadow-xl { box-shadow: var(--shadow-sb-xl); }
+.sb-shadow-inner { box-shadow: var(--shadow-sb-inner); }
+
+/* Cards */
+.sb-card {
+  background: var(--color-sb-surface);
+  border: 1px solid var(--color-sb-border);
+  border-radius: var(--radius-sb);
+  box-shadow: var(--shadow-sb-sm);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.sb-card:hover {
+  box-shadow: var(--shadow-sb);
+}
+
+.sb-card-projects {
+  background: var(--color-sb-projects);
+  border: 1px solid var(--color-sb-border);
+  border-radius: var(--radius-sb);
+  box-shadow: var(--shadow-sb-sm);
+}
+
+.sb-card-areas {
+  background: var(--color-sb-areas);
+  border: 1px solid var(--color-sb-border);
+  border-radius: var(--radius-sb);
+  box-shadow: var(--shadow-sb-sm);
+}
+
+.sb-card-resources {
+  background: var(--color-sb-resources);
+  border: 1px solid var(--color-sb-border);
+  border-radius: var(--radius-sb);
+  box-shadow: var(--shadow-sb-sm);
+}
+
+.sb-card-archive {
+  background: var(--color-sb-archive);
+  border: 1px solid var(--color-sb-border);
+  border-radius: var(--radius-sb);
+  box-shadow: var(--shadow-sb-sm);
+}
+
+/* Buttons */
+.sb-btn {
+  border: 1px solid var(--color-sb-border);
+  border-radius: var(--radius-sb-sm);
+  font-family: var(--font-display);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--color-sb-surface);
+  color: var(--color-sb-text);
+  box-shadow: var(--shadow-sb-xs);
+}
+
+.sb-btn:hover {
+  box-shadow: var(--shadow-sb-md);
+  border-color: var(--color-sb-border-strong);
+}
+
+.sb-btn:active {
+  box-shadow: var(--shadow-sb-xs);
+}
+
+.sb-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sb-btn-accent {
+  background: var(--color-sb-accent);
+  border-color: transparent;
+  color: #ffffff;
+}
+
+.sb-btn-accent:hover {
+  background: #79c0ff;
+  border-color: transparent;
+}
+
+.sb-btn-accent:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sb-btn-success {
+  background: var(--color-sb-success);
+  border-color: transparent;
+  color: #ffffff;
+}
+
+.sb-btn-error {
+  background: var(--color-sb-error);
+  border-color: transparent;
+  color: #ffffff;
+}
+
+.sb-btn-yellow {
+  background: var(--color-sb-yellow);
+  border-color: transparent;
+  color: var(--color-sb-text);
+}
+
+.sb-btn-yellow:hover {
+  background: #e3b337;
+  border-color: transparent;
+}
+
+.sb-btn-pink {
+  background: var(--color-sb-pink);
+  border-color: transparent;
+}
+
+.sb-btn-blue {
+  background: var(--color-sb-blue);
+  border-color: transparent;
+}
+
+.sb-btn-green {
+  background: var(--color-sb-green);
+  border-color: transparent;
+}
+
+.sb-btn-orange {
+  background: var(--color-sb-orange);
+  border-color: transparent;
+}
+
+.sb-btn-purple {
+  background: var(--color-sb-purple);
+  border-color: transparent;
+}
+
+/* Inputs */
+.sb-input {
+  border: 1px solid var(--color-sb-border);
+  border-radius: var(--radius-sb-sm);
+  font-family: var(--font-display);
+  padding: 8px 12px;
+  outline: none;
+  transition: all 0.15s ease;
+  background: var(--color-sb-surface);
+  color: var(--color-sb-text);
+}
+
+.sb-input:focus {
+  box-shadow: var(--shadow-sb-focus);
+  border-color: #818CF8;
+  background: var(--color-sb-surface);
+}
+
+.sb-input::placeholder {
+  color: var(--color-sb-text-muted);
+}
+
+/* Tags / Badges */
+.sb-tag {
+  border-radius: var(--radius-sb-full);
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-display);
+  background: var(--color-sb-surface-alt);
+  color: var(--color-sb-text-secondary);
+  border: 1px solid var(--color-sb-border);
+}
+
+.sb-tag-projects {
+  background: var(--color-sb-projects);
+  color: var(--color-sb-projects-text);
+  border-color: transparent;
+}
+
+.sb-tag-areas {
+  background: var(--color-sb-areas);
+  color: var(--color-sb-areas-text);
+  border-color: transparent;
+}
+
+.sb-tag-resources {
+  background: var(--color-sb-resources);
+  color: var(--color-sb-resources-text);
+  border-color: transparent;
+}
+
+.sb-tag-archive {
+  background: var(--color-sb-archive);
+  color: var(--color-sb-archive-text);
+  border-color: transparent;
+}
+
+/* Scrollbar — slim, subtle */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-sb-border-strong);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #A8A6A0;
+}
+
+/* Selection */
+::selection {
+  background: var(--color-sb-yellow);
+  color: var(--color-sb-text);
+}
+
+/* ============================================
+   EDITOR STYLES
+   ============================================ */
+
+.ProseMirror {
+  font-family: var(--font-editor);
+  font-size: 15px;
+  line-height: 1.75;
+  outline: none;
+  min-height: 300px;
+  color: var(--color-sb-text);
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--color-sb-text-muted);
+  pointer-events: none;
+  height: 0;
+  font-style: italic;
+}
+
+.ProseMirror h1 {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  margin: 24px 0 12px;
+  color: var(--color-sb-text);
+}
+
+.ProseMirror h2 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  margin: 20px 0 10px;
+  color: var(--color-sb-text);
+}
+
+.ProseMirror h3 {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  margin: 16px 0 8px;
+  color: var(--color-sb-text);
+}
+
+.ProseMirror a {
+  color: #6366F1;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.ProseMirror code {
+  font-family: var(--font-mono);
+  background: var(--color-sb-surface-alt);
+  border: 1px solid var(--color-sb-border);
+  border-radius: var(--radius-sb-sm);
+  padding: 2px 6px;
+  font-size: 13px;
+  color: var(--color-sb-text);
+}
+
+.ProseMirror pre {
+  font-family: var(--font-mono);
+  background: #1E1E2E;
+  color: #CDD6F4;
+  border: 1px solid var(--color-sb-border);
+  border-radius: var(--radius-sb);
+  padding: 16px;
+  margin: 16px 0;
+  overflow-x: auto;
+}
+
+.ProseMirror pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+}
+
+.ProseMirror blockquote {
+  border-left: 3px solid var(--color-sb-purple);
+  padding-left: 16px;
+  margin: 16px 0;
+  font-style: italic;
+  color: var(--color-sb-text-secondary);
+}
+
+.ProseMirror ul, .ProseMirror ol {
+  padding-left: 24px;
+  margin: 12px 0;
+}
+
+.ProseMirror li {
+  margin: 4px 0;
+}
+
+.ProseMirror hr {
+  border: none;
+  border-top: 1px solid var(--color-sb-border);
+  margin: 24px 0;
+}
+
+/* Wikilink styling — subtle, modern */
+.wikilink {
+  background: var(--color-sb-yellow-tint);
+  border: 1px solid var(--color-sb-yellow);
+  border-radius: var(--radius-sb-sm);
+  padding: 1px 6px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--color-sb-text);
+  transition: all 0.15s ease;
+}
+
+.wikilink:hover {
+  background: var(--color-sb-yellow);
+  box-shadow: var(--shadow-sb-xs);
+}
+
+.wikilink.unresolved {
+  background: var(--color-sb-surface-alt);
+  color: var(--color-sb-text-muted);
+  border: 1px dashed var(--color-sb-border-strong);
+}
+
+/* Wikilink suggestion dropdown */
+.wikilink-suggestion {
+  border: 1px solid var(--color-sb-border);
+  box-shadow: var(--shadow-sb-lg);
+  background: var(--color-sb-surface);
+  border-radius: var(--radius-sb);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.wikilink-suggestion-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-sb-border);
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--color-sb-text);
+  transition: background 0.1s ease;
+}
+
+.wikilink-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.wikilink-suggestion-item:hover,
+.wikilink-suggestion-item.active {
+  background: var(--color-sb-yellow-tint);
+}
