@@ -8,6 +8,7 @@ const routeLabels: Record<string, string> = {
   configs: 'Configs',
   stats: 'Stats',
   migration: 'Migration',
+  opencode: 'OpenCode',
 };
 
 function Breadcrumbs() {
@@ -17,8 +18,8 @@ function Breadcrumbs() {
   if (segments.length === 0) return null;
 
   return (
-    <div className="h-8 flex items-center px-4 border-b border-sb-border bg-sb-surface-alt shrink-0">
-      <nav className="flex items-center gap-1 text-sm">
+    <div className="h-8 flex items-center px-4 border-b border-outline-variant/15 bg-surface-container-low shrink-0">
+      <nav className="flex items-center gap-1 text-sm font-mono text-[10px] uppercase tracking-wider">
         {segments.map((segment, index) => {
           const isLast = index === segments.length - 1;
           const label = routeLabels[segment] || segment;
@@ -27,16 +28,16 @@ function Breadcrumbs() {
           return (
             <div key={path} className="flex items-center gap-1">
               {index > 0 && (
-                <span className="text-sb-text-muted">›</span>
+                <span className="text-outline-variant">›</span>
               )}
               {isLast ? (
-                <span className="text-sb-text font-medium truncate max-w-xs">
+                <span className="text-on-surface font-medium truncate max-w-xs">
                   {label}
                 </span>
               ) : (
                 <a
                   href={path}
-                  className="text-sb-text-secondary hover:text-sb-text transition-colors truncate max-w-xs"
+                  className="text-on-surface-variant hover:text-primary transition-colors truncate max-w-xs"
                 >
                   {label}
                 </a>

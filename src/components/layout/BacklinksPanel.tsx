@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNoteStore } from '../../state/note-store';
 import { linkRepository } from '../../storage/link-repository';
 import type { LinkRecord, NoteRecord } from '../../core/note/note';
-import { Icon } from '../shared/Icon';
+import { MaterialIcon } from '../shared/MaterialIcon';
 
 function BacklinksPanel() {
   const { activeNoteId, notes, selectNote } = useNoteStore();
@@ -23,7 +23,7 @@ function BacklinksPanel() {
   if (!activeNoteId) {
     return (
       <div className="flex items-center justify-center h-48">
-        <p className="text-sb-text-muted text-sm font-display">Select a note to see backlinks</p>
+        <p className="text-outline-variant text-sm font-headline">Select a note to see backlinks</p>
       </div>
     );
   }
@@ -31,24 +31,24 @@ function BacklinksPanel() {
   if (backlinkNotes.length === 0) {
     return (
       <div className="flex items-center justify-center h-48">
-        <p className="text-sb-text-muted text-sm font-display">No backlinks yet</p>
+        <p className="text-outline-variant text-sm font-headline">No backlinks yet</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-2">
-      <h4 className="font-display font-semibold text-sm mb-2 text-sb-text">
-        <Icon name="Link" size={14} ariaHidden /> {backlinkNotes.length} Backlink{backlinkNotes.length !== 1 ? 's' : ''}
+      <h4 className="font-headline font-semibold text-sm mb-2 text-on-surface flex items-center gap-2">
+        <MaterialIcon name="link" size={14} /> {backlinkNotes.length} Backlink{backlinkNotes.length !== 1 ? 's' : ''}
       </h4>
       {backlinkNotes.map((note) => (
         <button
           key={note.id}
           onClick={() => selectNote(note.id)}
-          className="w-full text-left sb-card p-3 hover:bg-sb-yellow-tint transition-all"
+          className="w-full text-left bg-surface-container rounded-lg p-3 hover:bg-surface-container-high transition-all border border-transparent hover:border-primary/20"
         >
-          <div className="font-display font-medium text-sm mb-1 text-sb-text">{note.title}</div>
-          <div className="text-xs text-sb-text-secondary line-clamp-2">
+          <div className="font-headline font-medium text-sm mb-1 text-on-surface">{note.title}</div>
+          <div className="text-xs text-on-surface-variant line-clamp-2">
             {note.content.replace(/<[^>]*>/g, '').slice(0, 100)}...
           </div>
         </button>

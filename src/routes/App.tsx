@@ -1,10 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useAppStore } from '../state/app-store';
+import { useUIStore } from '../state/ui-store';
+import { useApi } from '../hooks/useApi';
+import { api } from '../services/api';
 import TopBar from '../components/layout/TopBar';
 import Sidebar from '../components/layout/Sidebar';
 import StatusBar from '../components/layout/StatusBar';
 import Breadcrumbs from '../components/layout/Breadcrumbs';
+import { UnifiedGraph } from '../components/graph/UnifiedGraph';
+import { GraphLegend } from '../components/graph/GraphLegend';
+import type { GraphNode, GraphEdge } from '../types/graph';
 import SetupPage from './SetupPage';
 import NotFoundPage from './NotFoundPage';
 import SessionsPage from './SessionsPage';
@@ -13,17 +19,34 @@ import MigrationPage from './MigrationPage';
 import AgentsPage from './AgentsPage';
 import AgentDetailPage from './AgentDetailPage';
 import SkillsPage from './SkillsPage';
+import SkillDetailPage from './SkillDetailPage';
 import ConfigsPage from './ConfigsPage';
 import StatsPage from './StatsPage';
 import TopicsPage from './TopicsPage';
 import TopicDetailPage from './TopicDetailPage';
+import OpenCodePage from './OpenCodePage';
 
 function App() {
   const { isConfigured } = useAppStore();
+  const { graphOverlayOpen, setGraphOverlayOpen } = useUIStore();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const navigate = useNavigate();
 
-  // Keyboard shortcuts: g+s, g+a, g+k, g+t, g+c, g+d, g+m
+  const { data: graphData } = useApi(
+    () => api.graph.get(),
+    [],
+  );
+  const [graphNodes, setGraphNodes] = useState<GraphNode[]>([]);
+  const [graphEdges, setGraphEdges] = useState<GraphEdge[]>([]);
+
+  useEffect(() => {
+    if (graphData) {
+      setGraphNodes(graphData.nodes || []);
+      setGraphEdges(graphData.edges || []);
+    }
+  }, [graphData]);
+
+  // Keyboard shortcuts: g+s, g+a, g+k, g+t, g+c, g+d, g+m, g+o
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (
@@ -43,6 +66,7 @@ function App() {
             c: '/configs',
             d: '/stats',
             m: '/migration',
+            o: '/opencode',
           };
           if (routes[e2.key]) {
             e2.preventDefault();
@@ -61,19 +85,18 @@ function App() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-sb-bg">
+    <div className="h-screen flex flex-col bg-background">
       <TopBar
         onSidebarToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         sidebarCollapsed={sidebarCollapsed}
       />
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden mt-12 mb-6">
         <Sidebar
           collapsed={sidebarCollapsed}
-          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
         <main className="flex-1 flex flex-col overflow-hidden">
           <Breadcrumbs />
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto">
             <Routes>
               <Route
                 path="/"
@@ -88,16 +111,48 @@ function App() {
               <Route path="/agents" element={<AgentsPage />} />
               <Route path="/agents/:slug" element={<AgentDetailPage />} />
               <Route path="/skills" element={<SkillsPage />} />
+              <Route path="/skills/:slug" element={<SkillDetailPage />} />
               <Route path="/configs" element={<ConfigsPage />} />
               <Route path="/stats" element={<StatsPage />} />
               <Route path="/topics" element={<TopicsPage />} />
               <Route path="/topics/:slug" element={<TopicDetailPage />} />
+              <Route path="/opencode" element={<OpenCodePage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </div>
         </main>
       </div>
       <StatusBar />
+
+      {/* Full-screen Graph Overlay */}
+      {graphOverlayOpen && (
+        <div className="fixed inset-0 bg-background z-50 flex flex-col">
+          {/* Header */}
+          <div className="h-12 flex items-center justify-between px-4 border-b border-outline-variant/15 bg-surface-container/80 backdrop-blur-md shrink-0">
+            <h2 className="font-headline font-semibold text-lg text-on-surface">Knowledge Graph</h2>
+            <div className="flex items-center gap-4">
+              <GraphLegend />
+              <button
+                onClick={() => setGraphOverlayOpen(false)}
+                className="sb-btn px-3 py-1 text-sm text-on-surface-variant"
+              >
+                × Close
+              </button>
+            </div>
+          </div>
+
+          {/* Graph */}
+          <div className="flex-1 overflow-hidden">
+            <UnifiedGraph
+              nodes={graphNodes}
+              edges={graphEdges}
+              width={window.innerWidth}
+              height={window.innerHeight - 48}
+              mode="full"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -8,7 +8,7 @@ import type { ApiErrorResponse } from '../types/index.js';
  * Should be applied to routes that require a valid data root.
  */
 export async function validateRootMiddleware(
-  req: Request,
+  _req: Request,
   res: Response<ApiErrorResponse>,
   next: NextFunction,
 ): Promise<void> {

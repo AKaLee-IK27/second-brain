@@ -1,4 +1,5 @@
 import fs from 'fs/promises';
+import type { Dirent } from 'node:fs';
 import path from 'path';
 import { getDataRoot } from '../config.js';
 import { ErrorCode } from '../types/index.js';
@@ -36,7 +37,6 @@ function validatePathWithinRoot(filePath: string): string {
   // Ensure the resolved path starts with the data root
   // Add path separator to prevent prefix matching (e.g., /data vs /data-other)
   const normalizedRoot = dataRoot.endsWith(path.sep) ? dataRoot : dataRoot + path.sep;
-  const normalizedPath = resolvedPath.endsWith(path.sep) ? resolvedPath : resolvedPath + path.sep;
 
   if (
     !resolvedPath.startsWith(normalizedRoot) &&
@@ -94,7 +94,7 @@ export async function listFiles(
   const results: string[] = [];
 
   async function walk(dir: string): Promise<void> {
-    let entries: fs.Dirent[];
+    let entries: Dirent[];
     try {
       entries = await fs.readdir(dir, { withFileTypes: true });
     } catch {

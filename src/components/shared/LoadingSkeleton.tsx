@@ -4,7 +4,7 @@ export function LoadingSkeleton({ lines = 5 }: { lines?: number }) {
       {Array.from({ length: lines }).map((_, i) => (
         <div
           key={i}
-          className="h-4 bg-sb-surface-alt rounded"
+          className="h-4 bg-surface-container-high rounded"
           style={{ width: `${80 - i * 10}%` }}
         />
       ))}

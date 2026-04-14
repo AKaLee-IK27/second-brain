@@ -25,6 +25,8 @@ export interface SessionFrontmatter {
   version: number;
   relatedSessions?: string[];
   parentSession?: string;
+  relatedTopics?: string[];
+  outcome?: string;
 }
 
 export interface SessionSummary {
@@ -39,6 +41,7 @@ export interface SessionSummary {
   status: SessionStatus;
   tags?: string[];
   duration?: number;
+  outcome?: string;
 }
 
 export interface SessionData {

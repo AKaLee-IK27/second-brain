@@ -3,7 +3,14 @@ import { useNoteStore } from '../../state/note-store';
 import { useUIStore } from '../../state/ui-store';
 import { searchEngine } from '../../core/search/search-engine';
 import type { SearchResult } from '../../core/search/search-engine';
-import { Icon } from '../shared/Icon';
+import { MaterialIcon } from '../shared/MaterialIcon';
+
+const paraColors: Record<string, string> = {
+  projects: 'text-sb-projects',
+  areas: 'text-sb-areas',
+  resources: 'text-sb-resources',
+  archives: 'text-sb-archive',
+};
 
 function CommandPalette() {
   const { notes, selectNote, createNote, activeNoteId } = useNoteStore();
@@ -90,71 +97,119 @@ function CommandPalette() {
       className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-start justify-center pt-24 z-50"
       onClick={handleBackdropClick}
     >
-      <div className="w-full max-w-lg sb-card overflow-hidden bg-sb-surface shadow-sb-xl">
+      <div className="w-full max-w-2xl bg-surface-container/90 backdrop-blur-xl border border-outline-variant/20 rounded-xl overflow-hidden shadow-2xl">
         {/* Search Input */}
-        <div className="p-4 border-b border-sb-border">
+        <div className="flex items-center px-6 py-5 border-b border-outline-variant/15">
+          <span className="font-mono text-primary mr-4 text-lg select-none">&gt;</span>
           <input
             ref={inputRef}
             type="text"
-            placeholder="Type a command or search..."
+            placeholder="Search knowledge or run commands..."
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
               setActiveIndex(0);
             }}
-            className="sb-input w-full text-base"
+            className="w-full bg-transparent border-none focus:ring-0 text-on-surface font-headline placeholder:text-outline/50 text-lg"
           />
+          <div className="flex items-center gap-2 ml-4">
+            <span className="px-2 py-0.5 rounded bg-surface-container-highest border border-outline-variant/30 font-mono text-[10px] text-outline-variant">ESC</span>
+          </div>
         </div>
 
         {/* Results */}
-        <div className="max-h-80 overflow-y-auto">
+        <div className="max-h-[400px] overflow-y-auto py-2">
           {!query.trim() && (
-            <div className="px-4 py-2 bg-sb-surface-alt border-b border-sb-border">
-              <span className="text-xs font-display font-semibold text-sb-text-muted uppercase">Recent</span>
+            <div className="px-3 py-2">
+              <div className="px-3 py-1 font-mono text-[10px] text-outline-variant uppercase tracking-widest mb-1">Recent</div>
             </div>
           )}
 
-          {allItems.map((item, index) => (
-            <button
-              key={item.id}
-              onClick={() => handleSelect(index)}
-              className={`w-full text-left px-4 py-3 border-b border-sb-border last:border-b-0 transition-colors ${
-                index === activeIndex ? 'bg-sb-yellow-tint' : 'bg-sb-surface hover:bg-sb-surface-alt'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-display font-medium text-sm text-sb-text">
-                  {'type' in item && item.type === 'note'
-                    ? <><Icon name="FileText" size={14} ariaHidden /> </>
-                    : <><Icon name="Zap" size={14} ariaHidden /> </>}
-                  {item.label}
-                </span>
-                {'shortcut' in item && (
-                  <span className="text-xs font-mono text-sb-text-muted bg-sb-surface-alt border border-sb-border rounded-sm px-2 py-0.5">
-                    {item.shortcut}
+          {/* Commands Section */}
+          <div className="px-3 py-2">
+            <div className="px-3 py-1 font-mono text-[10px] text-outline-variant uppercase tracking-widest mb-1">Commands</div>
+            <div className="space-y-1">
+              {commands.map((cmd, i) => (
+                <button
+                  key={cmd.id}
+                  onClick={() => handleSelect(i)}
+                  className={`w-full text-left px-3 py-3 rounded-lg transition-colors duration-150 flex items-center justify-between ${
+                    i === activeIndex
+                      ? 'bg-primary/10 border-l-2 border-primary'
+                      : 'hover:bg-surface-container-highest'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <MaterialIcon name="bolt" size={18} className="text-secondary" />
+                    <span className="font-headline text-on-surface-variant hover:text-on-surface font-medium">{cmd.label}</span>
+                  </div>
+                  <span className="font-mono text-[10px] text-outline-variant bg-surface-container-highest border border-outline-variant/30 rounded px-1.5 py-0.5">
+                    {cmd.shortcut}
                   </span>
-                )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Notes Section */}
+          {allItems.length > commands.length && (
+            <div className="px-3 py-2">
+              <div className="px-3 py-1 font-mono text-[10px] text-outline-variant uppercase tracking-widest mb-1">Notes & Research</div>
+              <div className="space-y-1">
+                {allItems.slice(commands.length).map((item, i) => {
+                  const globalIndex = commands.length + i;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleSelect(globalIndex)}
+                      className={`w-full text-left px-3 py-3 rounded-lg transition-colors duration-150 flex items-center justify-between ${
+                        globalIndex === activeIndex
+                          ? 'bg-primary/10 border-l-2 border-primary'
+                          : 'hover:bg-surface-container-highest'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <MaterialIcon name="description" size={18} className="text-outline-variant" />
+                        <div className="flex flex-col">
+                          <span className="font-headline text-on-surface-variant hover:text-on-surface font-medium">{item.label}</span>
+                          {'paraCategory' in item && item.paraCategory && (
+                            <span className={`font-serif text-[11px] ${paraColors[item.paraCategory as string] || 'text-outline-variant'}`}>
+                              {item.paraCategory}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-              {'paraCategory' in item && item.paraCategory && (
-                <span className="text-xs text-sb-text-muted mt-1 block">
-                  {item.paraCategory}
-                </span>
-              )}
-            </button>
-          ))}
+            </div>
+          )}
 
           {allItems.length === 0 && (
-            <div className="px-4 py-8 text-center text-sb-text-muted">
+            <div className="px-4 py-8 text-center text-outline-variant font-mono text-sm">
               No results found
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-2 bg-sb-surface-alt border-t border-sb-border flex items-center justify-between text-xs text-sb-text-muted">
-          <span>↑↓ Navigate</span>
-          <span>↵ Select</span>
-          <span>Esc Close</span>
+        <div className="flex items-center justify-between px-4 py-3 bg-surface-container-lowest border-t border-outline-variant/15 font-mono text-[10px] text-outline-variant">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1.5">
+              <MaterialIcon name="keyboard_arrow_up" size={14} />
+              <MaterialIcon name="keyboard_arrow_down" size={14} />
+              <span>Navigate</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <MaterialIcon name="keyboard_return" size={14} />
+              <span>Open</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <MaterialIcon name="search" size={14} />
+            <span>{allItems.length} Results Found</span>
+          </div>
         </div>
       </div>
     </div>

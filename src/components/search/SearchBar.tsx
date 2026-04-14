@@ -3,22 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useDebounce } from '../../hooks/useDebounce';
 import { api } from '../../services/api';
 import type { SearchResult } from '../../types/search';
-import { Icon, type IconName } from '../shared/Icon';
-
-const typeIcons: Record<string, IconName> = {
-  session: 'MessageSquare',
-  agent: 'Bot',
-  skill: 'Wrench',
-  topic: 'BookOpen',
-  config: 'Settings',
-};
+import { MaterialIcon } from '../shared/MaterialIcon';
 
 const typeColors: Record<string, string> = {
-  session: 'text-sb-accent',
-  agent: 'text-sb-success',
-  skill: 'text-sb-warning',
+  session: 'text-primary',
+  agent: 'text-tertiary',
+  skill: 'text-secondary',
   topic: 'text-sb-purple',
-  config: 'text-sb-text-muted',
+  config: 'text-outline-variant',
 };
 
 export default function SearchBar() {
@@ -102,8 +94,8 @@ export default function SearchBar() {
   return (
     <div className="relative">
       <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sb-text-muted">
-          <Icon name="Search" size={16} ariaHidden />
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant">
+          <MaterialIcon name="search" size={16} />
         </span>
         <input
           ref={inputRef}
@@ -116,68 +108,63 @@ export default function SearchBar() {
           onFocus={() => query.trim() && setIsOpen(true)}
           onBlur={() => setTimeout(() => setIsOpen(false), 200)}
           placeholder="Search..."
-          className="sb-input pl-9 pr-16 text-sm w-64"
+          className="sb-input pl-9 pr-16 text-sm w-full bg-surface-container-lowest border border-outline-variant/15 rounded-lg focus:border-primary/50"
         />
-        <kbd className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-sb-text-muted bg-sb-surface-alt border border-sb-border rounded px-1.5 py-0.5">
+        <kbd className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-outline-variant bg-surface-container-high border border-outline-variant/30 rounded px-1.5 py-0.5 font-mono">
           ⌘K
         </kbd>
       </div>
 
       {isOpen && (query.trim() || results.length > 0) && (
-        <div className="absolute top-full left-0 right-0 mt-1 sb-card bg-sb-surface z-50 max-h-80 overflow-y-auto shadow-sb-xl">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-surface-container-highest border border-outline-variant/15 rounded-lg z-50 max-h-80 overflow-y-auto shadow-sb-xl">
           {loading && (
-            <div className="p-4 text-center text-sb-text-muted text-sm">
+            <div className="p-4 text-center text-outline-variant text-sm font-mono">
               Searching...
             </div>
           )}
           {error && !loading && (
-            <div className="p-4 text-center text-sb-error text-sm">
+            <div className="p-4 text-center text-error text-sm font-mono">
               {error}
             </div>
           )}
           {!loading && !error && results.length === 0 && query.trim() && (
-            <div className="p-4 text-center text-sb-text-muted text-sm">
+            <div className="p-4 text-center text-outline-variant text-sm font-mono">
               No results found
             </div>
           )}
           {!loading &&
-            results.map((item, i) => {
-              const icon = typeIcons[item.type];
-              return (
-                <button
-                  key={`${item.type}-${item.id}`}
-                  onClick={() => handleSelect(item)}
-                  className={`w-full text-left px-4 py-2.5 border-b border-sb-border last:border-b-0 transition-colors ${
-                    i === activeIndex
-                      ? 'bg-sb-accent/10'
-                      : 'hover:bg-sb-surface-alt'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    {icon ? (
-                      <Icon name={icon} size={14} ariaHidden />
-                    ) : (
-                      <Icon name="FileText" size={14} ariaHidden />
-                    )}
-                    <span
-                      className={`text-xs font-medium capitalize ${
-                        typeColors[item.type] || 'text-sb-text-secondary'
-                      }`}
-                    >
-                      {item.type}
-                    </span>
-                    <span className="text-sm text-sb-text truncate flex-1">
-                      {item.title}
-                    </span>
+            results.map((item, i) => (
+              <button
+                key={`${item.type}-${item.id}`}
+                onClick={() => handleSelect(item)}
+                className={`w-full text-left px-4 py-2.5 border-b border-outline-variant/10 last:border-b-0 transition-colors ${
+                  i === activeIndex
+                    ? 'bg-primary/10 border-l-2 border-primary'
+                    : 'hover:bg-surface-container-high'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <MaterialIcon name={
+                    item.type === 'session' ? 'history' :
+                    item.type === 'agent' ? 'smart_toy' :
+                    item.type === 'skill' ? 'terminal' :
+                    item.type === 'topic' ? 'topic' :
+                    'settings_input_component'
+                  } size={14} className={typeColors[item.type] || 'text-outline-variant'} />
+                  <span className={`text-xs font-medium capitalize font-mono ${typeColors[item.type] || 'text-outline-variant'}`}>
+                    {item.type}
+                  </span>
+                  <span className="text-sm text-on-surface truncate flex-1 font-headline">
+                    {item.title}
+                  </span>
+                </div>
+                {item.category && (
+                  <div className="text-xs text-outline-variant mt-0.5 ml-6 capitalize font-mono">
+                    {item.category}
                   </div>
-                  {item.category && (
-                    <div className="text-xs text-sb-text-muted mt-0.5 ml-6 capitalize">
-                      {item.category}
-                    </div>
-                  )}
-                </button>
-              );
-            })}
+                )}
+              </button>
+            ))}
         </div>
       )}
     </div>

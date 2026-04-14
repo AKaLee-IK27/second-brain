@@ -1,4 +1,4 @@
-import { Icon } from '../shared/Icon';
+import { MaterialIcon } from '../shared/MaterialIcon';
 import SearchBar from '../search/SearchBar';
 
 interface TopBarProps {
@@ -6,20 +6,27 @@ interface TopBarProps {
   sidebarCollapsed: boolean;
 }
 
+/**
+ * Monolithic Lexicon TopNavBar
+ * - Background: surface-topbar (#161b22)
+ * - Border: outline-variant/15 bottom border
+ * - Height: h-12
+ * - Typography: Space Grotesk for title
+ */
 function TopBar({ onSidebarToggle, sidebarCollapsed }: TopBarProps) {
   return (
-    <header className="h-12 flex items-center justify-between px-4 border-b border-sb-border bg-sb-surface shrink-0">
+    <header className="h-12 flex items-center justify-between px-4 border-b border-outline-variant/15 bg-surface-topbar shrink-0 fixed top-0 left-0 right-0 z-50">
       {/* Left: Sidebar toggle + Logo */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         <button
           onClick={onSidebarToggle}
-          className="sb-btn px-2 py-1 text-sm text-sb-text-secondary"
+          className="text-on-surface-variant hover:text-primary transition-colors duration-150"
           title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          <Icon name="PanelLeft" size={16} ariaHidden />
+          <MaterialIcon name="vertical_split" size={20} />
         </button>
-        <h1 className="font-semibold text-base tracking-tight text-sb-text">
-          <Icon name="Brain" size={20} ariaHidden /> AKL's Knowledge
+        <h1 className="font-headline font-bold text-lg tracking-tight text-on-surface">
+          Monolithic Lexicon
         </h1>
       </div>
 
@@ -29,19 +36,19 @@ function TopBar({ onSidebarToggle, sidebarCollapsed }: TopBarProps) {
       </div>
 
       {/* Right: Refresh + Settings */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <button
-          className="sb-btn px-2 py-1 text-sm text-sb-text-secondary"
+          className="text-on-surface-variant hover:text-primary transition-colors duration-150 scale-95 transition-transform duration-100"
           title="Refresh"
           onClick={() => window.location.reload()}
         >
-          <Icon name="RefreshCw" size={16} ariaHidden />
+          <MaterialIcon name="refresh" size={20} />
         </button>
         <button
-          className="sb-btn px-2 py-1 text-sm text-sb-text-secondary"
+          className="text-on-surface-variant hover:text-primary transition-colors duration-150 scale-95 transition-transform duration-100"
           title="Settings"
         >
-          <Icon name="Settings" size={16} ariaHidden />
+          <MaterialIcon name="settings" size={20} />
         </button>
       </div>
     </header>

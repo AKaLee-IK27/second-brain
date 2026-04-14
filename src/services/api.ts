@@ -40,6 +40,34 @@ import type {
   SearchRequest,
   SearchIndexStatus,
 } from '../types/search';
+import type {
+  Vault,
+  SyncPreview,
+  SyncResult,
+} from '../types/vault';
+import type { KnowledgeSnippet } from '../types/knowledge';
+import type { GraphNode, GraphEdge } from '../types/graph';
+
+interface GraphResponse {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  counts: { sessions: number; topics: number; agents: number; skills: number };
+}
+
+interface SessionBacklinks {
+  sessions: Array<{ id: string; slug: string; title: string; relationship: 'relatedSessions' | 'parentSession' }>;
+  topics: Array<{ id: string; slug: string; title: string; relationship: 'sourceSession' }>;
+}
+
+interface TopicBacklinks {
+  sessions: Array<{ id: string; slug: string; title: string }>;
+  topics: Array<{ id: string; slug: string; title: string }>;
+}
+
+interface UsedInResponse {
+  sessions: Array<{ id: string; slug: string; title: string; createdAt: string }>;
+  totalCount: number;
+}
 
 // ─── Error Class ──────────────────────────────────────────────────────────────
 
@@ -203,6 +231,34 @@ export const api = {
       }),
   },
 
+  // ── Vaults ────────────────────────────────────────────────────────────────
+
+  vaults: {
+    list: () =>
+      request<{ vaults: Vault[] }>('/api/vaults'),
+
+    add: (path: string) =>
+      request<{ vault: Vault }>('/api/vaults', {
+        method: 'POST',
+        body: JSON.stringify({ path }),
+      }),
+
+    remove: (id: string) =>
+      request<{ success: true }>(`/api/vaults/${id}`, {
+        method: 'DELETE',
+      }),
+
+    preview: () =>
+      request<{ preview: SyncPreview }>('/api/vaults/preview', {
+        method: 'POST',
+      }),
+
+    sync: () =>
+      request<{ result: SyncResult }>('/api/vaults/sync', {
+        method: 'POST',
+      }),
+  },
+
   // ── Migration ─────────────────────────────────────────────────────────────
 
   migration: {
@@ -232,6 +288,55 @@ export const api = {
         errors: string[];
         duration: string;
       }>('/api/migrate/report'),
+  },
+
+  knowledge: {
+    list: (params?: { type?: string; sessionId?: string }) => {
+      const qs = buildQuery(params ?? {});
+      return request<{
+        snippets: KnowledgeSnippet[];
+        total: number;
+        byType: { findings: number; files: number; actions: number };
+      }>(`/api/knowledge${qs}`);
+    },
+
+    bySession: (sessionId: string) =>
+      request<KnowledgeSnippet[]>(`/api/knowledge/session/${sessionId}`),
+
+    stats: () =>
+      request<{
+        total: number;
+        byType: { findings: number; files: number; actions: number };
+      }>('/api/knowledge/stats'),
+  },
+
+  // ── Graph ─────────────────────────────────────────────────────────────────
+
+  graph: {
+    get: (params?: { types?: string; days?: number }) => {
+      const qs = buildQuery(params ?? {});
+      return request<GraphResponse>(`/api/graph${qs}`);
+    },
+  },
+
+  // ── Backlinks ─────────────────────────────────────────────────────────────
+
+  backlinks: {
+    getSession: (sessionId: string) =>
+      request<SessionBacklinks>(`/api/backlinks/session/${sessionId}`),
+
+    getTopic: (topicSlug: string) =>
+      request<TopicBacklinks>(`/api/backlinks/topic/${topicSlug}`),
+
+    getAgentUsedIn: (agentSlug: string, limit?: number) => {
+      const qs = limit ? `?limit=${limit}` : '';
+      return request<UsedInResponse>(`/api/backlinks/agent/${agentSlug}/used-in${qs}`);
+    },
+
+    getSkillUsedIn: (skillSlug: string, limit?: number) => {
+      const qs = limit ? `?limit=${limit}` : '';
+      return request<UsedInResponse>(`/api/backlinks/skill/${skillSlug}/used-in${qs}`);
+    },
   },
 };
 

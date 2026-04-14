@@ -1,5 +1,13 @@
 // Shared TypeScript types for AKL's Knowledge server
 
+// ─── Server Config ───────────────────────────────────────────────────────────
+
+export interface ServerConfig {
+  port: number;
+  host: string;
+  dataRoot: string | null;
+}
+
 // ─── Session Types ───────────────────────────────────────────────────────────
 
 export interface SessionTokens {
@@ -234,7 +242,11 @@ export type ErrorCode =
   | 'PATH_TRAVERSAL'
   | 'MIGRATION_IN_PROGRESS'
   | 'SQLITE_NOT_FOUND'
-  | 'INTERNAL_ERROR';
+  | 'INTERNAL_ERROR'
+  | 'VAULT_PATH_INVALID'
+  | 'VAULT_NOT_WRITABLE'
+  | 'VAULT_NOT_FOUND'
+  | 'SYNC_FAILED';
 
 // ─── Error Code to HTTP Status Mapping ───────────────────────────────────────
 
@@ -247,6 +259,10 @@ export const ERROR_CODE_HTTP_STATUS: Record<ErrorCode, number> = {
   MIGRATION_IN_PROGRESS: 409,
   SQLITE_NOT_FOUND: 404,
   INTERNAL_ERROR: 500,
+  VAULT_PATH_INVALID: 400,
+  VAULT_NOT_WRITABLE: 403,
+  VAULT_NOT_FOUND: 404,
+  SYNC_FAILED: 500,
 };
 
 // ─── Session Query Params ────────────────────────────────────────────────────
@@ -303,4 +319,81 @@ export interface ParsedMarkdownFile {
   body: string;
   raw: string;
   filePath: string;
+}
+
+// ─── Vault Types ─────────────────────────────────────────────────────────────
+
+export interface Vault {
+  id: string;
+  path: string;
+  name: string;
+  addedAt: string;
+}
+
+export interface VaultConfig {
+  dataRoot: string | null;
+  vaults: Vault[];
+}
+
+// ─── Sync Types ──────────────────────────────────────────────────────────────
+
+export type FileDiffStatus = 'new' | 'modified' | 'unchanged' | 'deleted';
+
+export interface FileDiff {
+  sourcePath: string;
+  targetPath: string;
+  status: FileDiffStatus;
+  sourceHash?: string;
+  targetHash?: string;
+  sourceSize?: number;
+  targetSize?: number;
+}
+
+export interface VaultDiff {
+  vaultId: string;
+  vaultName: string;
+  vaultPath: string;
+  files: FileDiff[];
+  summary: {
+    new: number;
+    modified: number;
+    unchanged: number;
+    deleted: number;
+    totalChanges: number;
+  };
+}
+
+export interface SyncPreview {
+  sourceRoot: string;
+  vaults: VaultDiff[];
+  totalFiles: number;
+  totalChanges: number;
+}
+
+export interface SyncResult {
+  success: number;
+  failed: number;
+  errors: { vaultId: string; vaultName: string; error: string }[];
+}
+
+// ─── Vault API Types ─────────────────────────────────────────────────────────
+
+export interface VaultsListResponse {
+  vaults: Vault[];
+}
+
+export interface AddVaultRequest {
+  path: string;
+}
+
+export interface AddVaultResponse {
+  vault: Vault;
+}
+
+export interface SyncPreviewResponse {
+  preview: SyncPreview;
+}
+
+export interface SyncResultResponse {
+  result: SyncResult;
 }

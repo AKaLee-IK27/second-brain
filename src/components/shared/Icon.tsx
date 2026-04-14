@@ -24,6 +24,8 @@ import {
   X as XIcon,
   Trash2,
   Zap,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 
 const ICON_MAP = {
@@ -51,6 +53,8 @@ const ICON_MAP = {
   X: XIcon,
   Trash2,
   Zap,
+  ChevronDown,
+  ChevronRight,
 } as const;
 
 export type IconName = keyof typeof ICON_MAP;

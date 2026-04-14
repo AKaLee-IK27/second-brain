@@ -12,6 +12,10 @@ import configContentRoutes from './routes/configs.js';
 import statsRoutes from './routes/stats.js';
 import topicRoutes from './routes/topics.js';
 import searchRoutes from './routes/search.js';
+import vaultRoutes from './routes/vaults.js';
+import knowledgeRoutes from './routes/knowledge.js';
+import graphRoutes from './routes/graph.js';
+import backlinkRoutes from './routes/backlinks.js';
 import { validateRootMiddleware } from './middleware/validate-root.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { initFileWatcher } from './services/file-watcher.js';
@@ -52,6 +56,9 @@ export function createApp(): express.Application {
   // Config routes (no data root validation needed — these SET the data root)
   app.use('/api/config', configRoutes);
 
+  // Vault routes (no data root validation — vault management is independent)
+  app.use('/api/vaults', vaultRoutes);
+
   // Session routes (require valid data root)
   app.use('/api/sessions', validateRootMiddleware, sessionRoutes);
 
@@ -65,6 +72,9 @@ export function createApp(): express.Application {
   app.use('/api/stats', validateRootMiddleware, statsRoutes);
   app.use('/api/topics', validateRootMiddleware, topicRoutes);
   app.use('/api/search', validateRootMiddleware, searchRoutes);
+  app.use('/api/knowledge', validateRootMiddleware, knowledgeRoutes);
+  app.use('/api/graph', validateRootMiddleware, graphRoutes);
+  app.use('/api/backlinks', validateRootMiddleware, backlinkRoutes);
 
   // ─── Error Handler ───────────────────────────────────────────────────────────
 
@@ -88,7 +98,7 @@ export function createApp(): express.Application {
  * Creates and configures the full server (app + HTTP server + file watcher + search index).
  * Does NOT start listening — caller calls httpServer.listen() to control lifecycle.
  */
-export async function createServer(options: { port?: number } = {}): Promise<{ app: express.Application; httpServer: http.Server }> {
+export async function createServer(_options: { port?: number } = {}): Promise<{ app: express.Application; httpServer: http.Server }> {
   const app = createApp();
   const httpServer = http.createServer(app);
 

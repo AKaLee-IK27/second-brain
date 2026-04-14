@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import path from 'path';
 import { listFiles, readFile } from '../services/file-reader.js';
 import { parseMarkdown } from '../services/frontmatter-parser.js';
 import type {
@@ -22,7 +21,7 @@ const router = Router();
  */
 function toSessionSummary(
   frontmatter: Record<string, unknown>,
-  filePath: string,
+  _filePath: string,
 ): SessionSummary | null {
   const id = frontmatter.id as string | undefined;
   const slug = frontmatter.slug as string | undefined;
@@ -53,7 +52,7 @@ function toSessionSummary(
     createdAt,
     tokens,
     cost: typeof frontmatter.cost === 'number' ? frontmatter.cost : 0,
-    status: (frontmatter.status as string) ?? 'completed',
+    status: ((frontmatter.status as string) ?? 'completed') as SessionSummary['status'],
     tags: Array.isArray(frontmatter.tags) ? frontmatter.tags as string[] : undefined,
     duration: typeof frontmatter.duration === 'number' ? frontmatter.duration : undefined,
   };
