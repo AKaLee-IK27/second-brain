@@ -9,7 +9,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
  * @returns The ID of the currently active heading, or null if none is visible
  */
 export function useScrollSpy(
-  containerRef: React.RefObject<HTMLElement> | HTMLElement | null,
+  containerRef: React.RefObject<HTMLElement | null> | HTMLElement | null,
   headingIds: string[]
 ): string | null {
   const [activeHeadingId, setActiveHeadingId] = useState<string | null>(null);

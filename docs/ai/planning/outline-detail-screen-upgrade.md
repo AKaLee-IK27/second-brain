@@ -120,8 +120,11 @@
 - Add content container ref for scroll spy
 - Wire up `onHeadingClick` with scroll-to-heading logic
 - Pass `activeHeadingId` from `useScrollSpy`
+- Pass `headingIds` to `MarkdownRenderer`
 
 **Design Reference:** Section 3
+
+**Status:** ✅ Complete
 
 ---
 
@@ -198,12 +201,12 @@
 
 | Task | Status | Started | Completed | Notes |
 |------|--------|---------|-----------|-------|
-| 1. Create headingUtils.ts | ⏳ Pending | — | — | Foundation |
-| 2. Create useScrollSpy hook | ⏳ Pending | — | — | Foundation |
-| 3. Enhance MarkdownRenderer | ⏳ Pending | — | — | Foundation |
-| 4. Create ArticleOutline component | ⏳ Pending | — | — | Component |
-| 5. Test ArticleOutline in isolation | ⏳ Pending | — | — | Component |
-| 6. Update TopicDetailPage | ⏳ Pending | — | — | Integration |
+| 1. Create headingUtils.ts | ✅ Complete | 2026-04-14 | 2026-04-14 | Foundation - 10 tests passing |
+| 2. Create useScrollSpy hook | ✅ Complete | 2026-04-14 | 2026-04-14 | Foundation - 6 tests passing |
+| 3. Enhance MarkdownRenderer | ✅ Complete | 2026-04-14 | 2026-04-14 | Foundation - 5 tests passing |
+| 4. Create ArticleOutline component | ✅ Complete | 2026-04-14 | 2026-04-14 | Component - 13 tests passing |
+| 5. Test ArticleOutline in isolation | ✅ Complete | 2026-04-14 | 2026-04-14 | Component - covered by Task 4 |
+| 6. Update TopicDetailPage | ✅ Complete | 2026-04-14 | 2026-04-14 | Integration - TypeScript clean |
 | 7. Update SessionDetailPage | ⏳ Pending | — | — | Integration |
 | 8. Add outline to AgentDetailPage | ⏳ Pending | — | — | Integration |
 | 9. Add outline to SkillDetailPage | ⏳ Pending | — | — | Integration |

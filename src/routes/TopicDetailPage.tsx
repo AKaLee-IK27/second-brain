@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
 import { api } from '../services/api';
@@ -5,6 +6,9 @@ import { MarkdownRenderer } from '../components/shared/MarkdownRenderer';
 import { LoadingSkeleton } from '../components/shared/LoadingSkeleton';
 import { EmptyState } from '../components/shared/EmptyState';
 import { MaterialIcon } from '../components/shared/MaterialIcon';
+import { ArticleOutline, HeadingItem } from '../components/shared/ArticleOutline';
+import { extractHeadings } from '../utils/headingUtils';
+import { useScrollSpy } from '../hooks/useScrollSpy';
 import { format } from 'date-fns';
 
 const typeColors: Record<string, string> = {
@@ -26,6 +30,8 @@ export default function TopicDetailPage() {
     () => api.backlinks.getTopic(slug!),
     [slug],
   );
+
+  const contentContainerRef = useRef<HTMLDivElement>(null);
 
   if (loading) return <LoadingSkeleton lines={15} />;
   if (error)
@@ -49,13 +55,30 @@ export default function TopicDetailPage() {
   const sourceSession = frontmatter.sourceSession as string | undefined;
   const relatedTopics = frontmatter.relatedTopics as string[] | undefined;
 
-  // Extract headings for outline
-  const headingRegex = /^(#{1,3})\s+(.+)$/gm;
-  const headings: { level: number; text: string }[] = [];
-  let match;
-  while ((match = headingRegex.exec(body)) !== null) {
-    headings.push({ level: match[1].length, text: match[2] });
-  }
+  // Extract headings with IDs
+  const headings: HeadingItem[] = extractHeadings(body);
+
+  // Build heading ID map for MarkdownRenderer
+  const headingIdsMap = new Map<string, string>();
+  headings.forEach((h) => {
+    headingIdsMap.set(h.text, h.id);
+  });
+
+  // Active heading tracking
+  const activeHeadingId = useScrollSpy(contentContainerRef, headings.map((h) => h.id));
+
+  // Scroll to heading on click
+  const handleHeadingClick = (id: string) => {
+    const container = contentContainerRef.current;
+    const target = container?.querySelector(`[id="${id}"]`) as HTMLElement | null;
+    if (target && container) {
+      const top = target.offsetTop - container.offsetTop;
+      container.scrollTo({
+        top,
+        behavior: 'smooth',
+      });
+    }
+  };
 
   const wordCount = body.split(/\s+/).length;
   const readTime = Math.max(1, Math.ceil(wordCount / 200));
@@ -63,7 +86,7 @@ export default function TopicDetailPage() {
   return (
     <div className="flex h-full">
       {/* Center Panel: Article Body */}
-      <div className="flex-1 overflow-y-auto">
+      <div ref={contentContainerRef} className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto px-12 py-8">
           {/* Header Metadata */}
           <div className="mb-12 font-mono text-[11px] uppercase tracking-wider text-on-surface-variant flex items-center justify-between">
@@ -97,7 +120,7 @@ export default function TopicDetailPage() {
                 {frontmatter.summary}
               </p>
             )}
-            <MarkdownRenderer content={body} />
+            <MarkdownRenderer content={body} headingIds={headingIdsMap} />
           </article>
 
           {/* Tags */}
@@ -185,25 +208,11 @@ export default function TopicDetailPage() {
       {/* Right Panel: Metadata Rail */}
       <aside className="w-80 bg-surface-container-lowest/30 px-6 py-8 flex flex-col gap-10 overflow-y-auto border-l border-outline-variant/10">
         {/* Outline */}
-        {headings.length > 0 && (
-          <section>
-            <h3 className="font-mono text-[10px] text-outline-variant uppercase tracking-[0.2em] mb-4 flex items-center justify-between">
-              <span>Outline</span>
-              <MaterialIcon name="segment" size={14} />
-            </h3>
-            <ul className="flex flex-col gap-3 font-headline text-sm text-on-surface-variant">
-              {headings.map((h, i) => (
-                <li
-                  key={i}
-                  className={`hover:text-primary cursor-pointer transition-colors flex items-center gap-2 ${h.level > 1 ? 'pl-4 border-l border-outline-variant/20' : ''}`}
-                >
-                  {h.level === 1 && <span className="w-1 h-1 bg-primary-container rounded-full" />}
-                  {h.text}
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+        <ArticleOutline
+          headings={headings}
+          activeHeadingId={activeHeadingId}
+          onHeadingClick={handleHeadingClick}
+        />
 
         {/* Stats */}
         <section className="mt-auto">

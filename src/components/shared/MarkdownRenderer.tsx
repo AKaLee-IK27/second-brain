@@ -36,7 +36,7 @@ export function MarkdownRenderer({ content, className, headingIds }: MarkdownRen
         let headingIndex = 0;
 
         const renderer = new marked.Renderer();
-        renderer.heading = ({ text, depth, raw }) => {
+        renderer.heading = ({ text, depth }) => {
           const cleanText = text.trim().replace(/\s+/g, ' ');
           let id: string | undefined;
 
