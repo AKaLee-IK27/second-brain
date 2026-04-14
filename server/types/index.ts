@@ -146,6 +146,7 @@ export interface TopicFrontmatter {
   status: TopicStatus;
   summary?: string;
   createdAt: string;
+  updatedAt?: string;        // ISO 8601 timestamp for last modification
   readTime?: number;
   tags?: string[];
   author?: string;

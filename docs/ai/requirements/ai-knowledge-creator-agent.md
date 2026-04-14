@@ -1,9 +1,9 @@
 # Requirement: AI Knowledge Creator Agent and Vault Writer Skill
 
 **Date:** 2026-04-14
-**Status:** Reviewed
+**Status:** Reviewed (Revised 2026-04-14)
 **Author:** Scribe
-**Reviewed by:** Oracle (2026-04-14)
+**Reviewed by:** Oracle (2026-04-14) — 10 issues identified, all fixed
 
 ## Context
 
@@ -28,23 +28,34 @@ As a user building a second brain, I want to chat with a specialized AI agent th
 ### Skill Definition
 
 - [ ] Given the opencode skills directory, when a new skill is registered, then a skill named "Vault Writer" exists with slug `vault-writer`, category `knowledge-management`, and status `active`
-- [ ] Given the Vault Writer skill, when loaded, then it provides the agent with the capability to create, update, and draft markdown files in the vault with proper YAML frontmatter
+- [ ] Given the Vault Writer skill, when loaded, then it provides the agent with the capability to create, update, and draft markdown files in the vault with YAML frontmatter containing all required fields (id, slug, title, type, category, status, createdAt, updatedAt, version) as defined in the TopicFrontmatter interface
 - [ ] Given the Vault Writer skill, when creating a topic, then the generated markdown file includes all required frontmatter fields: `id`, `slug`, `title`, `type`, `category`, `status`, `createdAt`, `updatedAt`, `version`
 - [ ] Given the Vault Writer skill, when updating an existing topic, then the `updatedAt` field is set to the current ISO 8601 timestamp
 - [ ] Given the Vault Writer skill, when creating a topic, then the `type` field is one of: `article`, `blog`, `research-note`, `tutorial`, `reference`, `meeting-note`, `idea`
 - [ ] Given the Vault Writer skill, when creating a topic, then the `status` field defaults to `draft` unless the user explicitly requests `published`
 - [ ] Given the Vault Writer skill, when generating a slug, then it checks for existing topics with the same slug and appends a numeric suffix if a collision is detected (e.g., `flutter-state-management-2`)
-- [ ] Given the Vault Writer skill, before writing any file, then it validates that all required frontmatter fields are present and have valid values
+- [ ] Given the Vault Writer skill, before writing any file, then it validates that all required frontmatter fields are present and conform to these validity rules:
+  - `id`: matches pattern `topic_<snake_case_slug>` (lowercase letters, digits, underscores, no spaces)
+  - `slug`: URL-safe lowercase string with hyphens only (regex: `^[a-z0-9]+(-[a-z0-9]+)*$`)
+  - `title`: non-empty string, minimum 3 characters
+  - `type`: one of `article`, `blog`, `research-note`, `tutorial`, `reference`, `meeting-note`, `idea`
+  - `category`: one of `documentation`, `tutorial`, `reference`, `technology`, `blog`
+  - `status`: one of `draft`, `published`, `archived`
+  - `createdAt`: valid ISO 8601 timestamp (e.g., `2026-04-14T10:30:00Z`)
+  - `updatedAt`: valid ISO 8601 timestamp or absent
+  - `version`: positive integer (minimum 1)
 - [ ] Given the Vault Writer skill, when generating a slug, then it produces a URL-safe lowercase string with hyphens (e.g., "Flutter State Management Guide" → `flutter-state-management-guide`)
-- [ ] Given the Vault Writer skill, when generating an ID, then it produces a valid UUID v4 string
+- [ ] Given the Vault Writer skill, when generating an ID, then it produces a unique identifier matching the pattern `topic_<snake_case_slug>` that does not conflict with any existing topic ID in the vault
 - [ ] Given the Vault Writer skill, when generating a `createdAt` timestamp, then it uses ISO 8601 format (e.g., `2026-04-14T10:30:00Z`)
 
 ### Chat Interaction Flow
 
-- [ ] Given the user starts a conversation with the Knowledge Creator agent, when the agent responds, then it asks clarifying questions about the desired content type, topic, category, and target audience before generating content
-- [ ] Given the user provides content requirements, when the agent generates a draft, then the output is a complete markdown document with YAML frontmatter and body content
+- [ ] Given the user starts a conversation with the Knowledge Creator agent without specifying content type, topic, category, or target audience, when the agent responds, then it asks for each missing field individually before generating content
+- [ ] Given the user provides content requirements, when the agent generates a draft, then the output is a markdown document containing: YAML frontmatter with all required fields, at least two H2 sections, and a minimum of 200 words of body content
 - [ ] Given the agent generates a draft, when presented to the user, then the user can request revisions before the content is written to the vault
-- [ ] Given the user approves a draft, when the agent writes to the vault, then the file is saved to the correct vault path following the existing file naming convention (`<slug>.md`)
+- [ ] Given the user rejects a draft without requesting revisions, when the agent responds, then it discards the draft and asks the user for new content requirements including topic, type, and scope
+- [ ] Given the user approves a draft, when the agent writes to the vault, then the file is saved to `topics/{category}/{slug}.md` where `{category}` matches the frontmatter category field and `{slug}` matches the frontmatter slug field
+- [ ] Given the Vault Writer skill attempts to write to a path outside the `topics/` directory, when the path validation runs, then it aborts the write and reports: "Write rejected: target path must be within topics/ directory"
 - [ ] Given the user requests changes to an existing topic, when the agent updates the file, then the `version` field in the frontmatter is incremented by 1
 - [ ] Given the user requests a blog post without specifying a category, when the agent responds, then it asks the user to choose a category before proceeding
 
@@ -53,13 +64,14 @@ As a user building a second brain, I want to chat with a specialized AI agent th
 - [ ] Given the Vault Writer skill writes a new topic, when the file is created, then it is placed in the vault's topics directory following the existing path structure
 - [ ] Given the Vault Writer skill creates a blog-type topic, when the file is created, then it is placed in the `topics/blog/` subdirectory (new category directory to be created)
 - [ ] Given the Vault Writer skill writes a file, when the operation completes, then the server's file watcher detects the new file and triggers re-indexing
-- [ ] Given the Vault Writer skill writes a file, when the frontmatter is generated, then it conforms to the existing `TopicFrontmatter` interface defined in `src/types/topic.ts`
-- [ ] Given the Vault Writer skill attempts to write to the vault, when the vault path is invalid or inaccessible, then the agent reports the error to the user with a clear message
+- [ ] Given the Vault Writer skill writes a file, when the frontmatter is generated, then it conforms to the existing `TopicFrontmatter` interface defined in `server/types/index.ts`
+- [ ] Given the Vault Writer skill attempts to write to the vault, when the vault path is invalid or inaccessible, then the agent reports the error to the user with the format: "Failed to write file: {error reason}. Please check vault permissions and try again."
 - [ ] Given the Vault Writer skill creates a topic with `relatedTopics`, when the frontmatter is generated, then the `relatedTopics` field contains an array of valid topic IDs that exist in the vault
+- [ ] Given the user specifies relatedTopics that do not exist in the vault, when the agent validates the references, then it warns the user with the message "The following topics were not found: {list}. They will be omitted from relatedTopics." and omits the invalid IDs from the frontmatter
 
 ### Content Quality
 
-- [ ] Given the agent generates content, when the markdown body is produced, then it uses proper heading hierarchy (H1 for title, H2 for sections, H3 for subsections)
+- [ ] Given the agent generates content, when the markdown body is produced, then it uses exactly one H1 for the title, H2 for top-level sections, and H3 for subsections. No H4 or deeper headings are used
 - [ ] Given the agent generates content, when the markdown body contains code blocks, then they include language identifiers for syntax highlighting
 - [ ] Given the agent generates content, when the markdown body contains internal references, then it uses the `[[wikilink]]` syntax consistent with the existing backlink system
 - [ ] Given the agent generates a research-note type topic, when the body is produced, then it includes sections for: Summary, Key Findings, Sources, and Notes
@@ -68,14 +80,14 @@ As a user building a second brain, I want to chat with a specialized AI agent th
 
 ### Dashboard UX
 
-- [ ] Given the dashboard displays topics, when a topic has `status: "draft"`, then it shows a visual draft indicator (badge, opacity, or filter toggle)
+- [ ] Given the dashboard displays topics, when a topic has `status: "draft"`, then it shows a yellow "Draft" badge next to the topic title
 - [ ] Given the dashboard topic list, when viewed, then users can filter to show only published topics or include drafts
 
 ### Error Handling
 
-- [ ] Given the user requests a topic with a slug that already exists, when the agent attempts to write, then it appends a numeric suffix to the slug (e.g., `flutter-state-management-2`) and informs the user
+- [ ] Given the user requests a topic with a slug that already exists in the target category, when the Vault Writer skill performs its pre-write slug uniqueness check, then it appends a numeric suffix to the slug (e.g., `flutter-state-management-2`), increments the suffix until a unique slug is found, and the agent informs the user: "A topic with slug '{slug}' already exists. Using '{new-slug}' instead."
 - [ ] Given the agent fails to write a file, when the error occurs, then it retries once before reporting failure to the user
-- [ ] Given the user provides ambiguous content instructions, when the agent cannot determine intent, then it asks clarifying questions instead of guessing
+- [ ] Given the user provides content instructions with fewer than 10 words and no content type keyword (article, blog, research-note, tutorial, reference, meeting-note, idea), when the agent responds, then it asks for clarification about the desired content type and topic before proceeding
 
 ## Constraints
 

@@ -22,9 +22,16 @@ const typeColors: Record<string, string> = {
   reference: 'bg-outline-variant/10 text-on-surface-variant border-outline-variant/20',
 };
 
+const DraftBadge = () => (
+  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-headline font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase">
+    Draft
+  </span>
+);
+
 export default function TopicsPage() {
   const [category, setCategory] = useState('');
   const [type, setType] = useState('');
+  const [showDrafts, setShowDrafts] = useState(true);
 
   const { data: topicsData, loading: tLoading } = useApi(
     () =>
@@ -40,7 +47,9 @@ export default function TopicsPage() {
     [],
   );
 
-  const topics = topicsData?.topics || [];
+  const topics = (topicsData?.topics || []).filter(
+    (t) => showDrafts || t.status !== 'draft'
+  );
   const categories = categoriesData?.categories || [];
 
   if (tLoading) return <LoadingSkeleton lines={8} />;
@@ -109,6 +118,15 @@ export default function TopicsPage() {
           <p className="font-mono text-sm text-primary">
             {totalTopics} topics indexed — Last synced recently
           </p>
+          <label className="flex items-center gap-2 mt-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showDrafts}
+              onChange={(e) => setShowDrafts(e.target.checked)}
+              className="rounded border-outline-variant/30 bg-surface-container-high"
+            />
+            <span className="font-mono text-xs text-outline">Show drafts</span>
+          </label>
         </header>
 
         {topics.length === 0 ? (
@@ -128,6 +146,11 @@ export default function TopicsPage() {
                     <span className={`absolute top-4 left-4 px-3 py-1 ${paraColors[featuredTopic.category]?.bg || 'bg-primary/10'} ${paraColors[featuredTopic.category]?.text || 'text-primary'} text-[10px] font-headline font-bold uppercase rounded-full backdrop-blur-md border ${paraColors[featuredTopic.category]?.border || 'border-primary/30'}`}>
                       {featuredTopic.category || 'Article'}
                     </span>
+                    {featuredTopic.status === 'draft' && (
+                      <span className="absolute top-4 right-4">
+                        <DraftBadge />
+                      </span>
+                    )}
                   </div>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3 font-mono text-[10px] text-outline">
@@ -159,9 +182,12 @@ export default function TopicsPage() {
               <article key={topic.slug} className="col-span-12 md:col-span-6 group cursor-pointer space-y-4 border-b border-outline-variant/10 pb-8">
                 <Link to={`/topics/${topic.slug}`}>
                   <div className="flex items-center justify-between">
-                    <span className={`px-2 py-0.5 ${typeColors[topic.type] || typeColors.article} text-[10px] font-headline font-bold uppercase rounded border capitalize`}>
-                      {topic.type || 'Article'}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-0.5 ${typeColors[topic.type] || typeColors.article} text-[10px] font-headline font-bold uppercase rounded border capitalize`}>
+                        {topic.type || 'Article'}
+                      </span>
+                      {topic.status === 'draft' && <DraftBadge />}
+                    </div>
                     <span className="font-mono text-[10px] text-outline">{topic.readTime || 5} MIN READ</span>
                   </div>
                   <h3 className="font-headline text-xl font-bold text-on-surface group-hover:text-primary transition-colors mt-2">
