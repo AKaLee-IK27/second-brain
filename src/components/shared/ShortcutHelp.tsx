@@ -1,19 +1,6 @@
 import { useUIStore } from '../../state/ui-store';
 import { MaterialIcon } from '../shared/MaterialIcon';
-
-const SHORTCUTS = [
-  { action: 'Command Palette', shortcut: 'Ctrl+K' },
-  { action: 'New Note', shortcut: 'Ctrl+N' },
-  { action: 'Toggle Sidebar', shortcut: 'Ctrl+\\' },
-  { action: 'Toggle Right Panel', shortcut: 'Ctrl+/' },
-  { action: 'Focus Mode', shortcut: 'Ctrl+.' },
-  { action: 'Graph View', shortcut: 'G' },
-  { action: 'Bold', shortcut: 'Ctrl+B' },
-  { action: 'Italic', shortcut: 'Ctrl+I' },
-  { action: 'Heading', shortcut: 'Ctrl+Shift+H' },
-  { action: 'Wikilink', shortcut: '[[ ' },
-  { action: 'Show Shortcuts', shortcut: 'Ctrl+?' },
-];
+import { SHORTCUT_DEFINITIONS, getDisplayKeys } from '../../config/shortcuts-definitions';
 
 function ShortcutHelp() {
   const { toggleShortcutHelp } = useUIStore();
@@ -40,19 +27,31 @@ function ShortcutHelp() {
         </div>
 
         <div className="space-y-1">
-          {SHORTCUTS.map((s) => (
-            <div
-              key={s.shortcut}
-              className="flex items-center justify-between py-2 border-b border-outline-variant/15 last:border-b-0"
-            >
-              <span className="font-headline text-sm text-on-surface">
-                {s.action}
-              </span>
-              <kbd className="font-mono text-xs bg-surface-container border border-outline-variant/30 rounded-sm px-2 py-1 text-on-surface-variant">
-                {s.shortcut}
-              </kbd>
-            </div>
-          ))}
+          {SHORTCUT_DEFINITIONS.map((shortcut) => {
+            const displayKeys = getDisplayKeys(shortcut);
+            return (
+              <div
+                key={shortcut.id}
+                className="flex items-center justify-between py-2 border-b border-outline-variant/15 last:border-b-0"
+              >
+                <span className="font-headline text-sm text-on-surface">
+                  {shortcut.action}
+                </span>
+                <div className="flex items-center gap-1">
+                  {displayKeys.map((key, index) => (
+                    <span key={index} className="flex items-center">
+                      <kbd className="font-mono text-xs bg-surface-container border border-outline-variant/30 rounded-sm px-2 py-1 text-on-surface-variant">
+                        {key}
+                      </kbd>
+                      {index < displayKeys.length - 1 && (
+                        <span className="text-on-surface-variant mx-0.5">+</span>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         <div className="mt-4 pt-4 border-t border-outline-variant/15 text-center text-sm text-outline-variant">

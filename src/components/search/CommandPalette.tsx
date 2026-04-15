@@ -4,6 +4,7 @@ import { useUIStore } from '../../state/ui-store';
 import { searchEngine } from '../../core/search/search-engine';
 import type { SearchResult } from '../../core/search/search-engine';
 import { MaterialIcon } from '../shared/MaterialIcon';
+import { SHORTCUT_DEFINITIONS, getDisplayKeys } from '../../config/shortcuts-definitions';
 
 const paraColors: Record<string, string> = {
   projects: 'text-sb-projects',
@@ -11,6 +12,13 @@ const paraColors: Record<string, string> = {
   resources: 'text-sb-resources',
   archives: 'text-sb-archive',
 };
+
+// Helper to get shortcut display string for a given shortcut ID
+function getShortcutDisplay(id: string): string {
+  const shortcut = SHORTCUT_DEFINITIONS.find(s => s.id === id);
+  if (!shortcut) return '';
+  return getDisplayKeys(shortcut).join('+');
+}
 
 function CommandPalette() {
   const { notes, selectNote, createNote, activeNoteId } = useNoteStore();
@@ -20,11 +28,11 @@ function CommandPalette() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const commands = [
-    { id: 'new-note', label: 'New Note', shortcut: 'Ctrl+N', action: () => createNote('Untitled Note', 'projects') },
-    { id: 'toggle-sidebar', label: 'Toggle Sidebar', shortcut: 'Ctrl+\\', action: toggleSidebar },
-    { id: 'toggle-right', label: 'Toggle Right Panel', shortcut: 'Ctrl+/', action: toggleRightPanel },
-    { id: 'focus-mode', label: 'Toggle Focus Mode', shortcut: 'Ctrl+.', action: toggleFocusMode },
-    { id: 'shortcuts', label: 'Show Keyboard Shortcuts', shortcut: 'Ctrl+?', action: toggleShortcutHelp },
+    { id: 'new-note', label: 'New Note', shortcut: getShortcutDisplay('new-note'), action: () => createNote('Untitled Note', 'projects') },
+    { id: 'toggle-sidebar', label: 'Toggle Sidebar', shortcut: getShortcutDisplay('toggle-sidebar'), action: toggleSidebar },
+    { id: 'toggle-right', label: 'Toggle Right Panel', shortcut: getShortcutDisplay('toggle-right-panel'), action: toggleRightPanel },
+    { id: 'focus-mode', label: 'Toggle Focus Mode', shortcut: getShortcutDisplay('focus-mode'), action: toggleFocusMode },
+    { id: 'shortcuts', label: 'Show Keyboard Shortcuts', shortcut: getShortcutDisplay('show-shortcuts'), action: toggleShortcutHelp },
   ];
 
   const searchResults: SearchResult[] = useMemo(() => {

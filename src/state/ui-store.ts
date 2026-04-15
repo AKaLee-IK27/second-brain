@@ -10,6 +10,9 @@ interface UIState {
   commandPaletteOpen: boolean;
   shortcutHelpOpen: boolean;
   graphOverlayOpen: boolean;
+  settingsOpen: boolean;
+  settingsTab: 'shortcuts' | 'about';
+  _settingsTriggerElement: HTMLElement | null;
 
   // Actions
   toggleSidebar: () => void;
@@ -21,6 +24,8 @@ interface UIState {
   toggleShortcutHelp: () => void;
   toggleGraphOverlay: () => void;
   setGraphOverlayOpen: (open: boolean) => void;
+  toggleSettings: () => void;
+  setSettingsTab: (tab: 'shortcuts' | 'about') => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -31,6 +36,9 @@ export const useUIStore = create<UIState>((set) => ({
   commandPaletteOpen: false,
   shortcutHelpOpen: false,
   graphOverlayOpen: false,
+  settingsOpen: false,
+  settingsTab: 'shortcuts',
+  _settingsTriggerElement: null,
 
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
   toggleRightPanel: () => set((state) => ({ rightPanelOpen: !state.rightPanelOpen })),
@@ -41,4 +49,16 @@ export const useUIStore = create<UIState>((set) => ({
   toggleShortcutHelp: () => set((state) => ({ shortcutHelpOpen: !state.shortcutHelpOpen })),
   toggleGraphOverlay: () => set((state) => ({ graphOverlayOpen: !state.graphOverlayOpen })),
   setGraphOverlayOpen: (open) => set({ graphOverlayOpen: open }),
+  toggleSettings: () => set((state) => {
+    if (!state.settingsOpen) {
+      return {
+        settingsOpen: true,
+        settingsTab: 'shortcuts',
+        _settingsTriggerElement: document.activeElement as HTMLElement,
+        shortcutHelpOpen: false,
+      };
+    }
+    return { settingsOpen: false };
+  }),
+  setSettingsTab: (tab) => set({ settingsTab: tab }),
 }));

@@ -1,5 +1,6 @@
 import { MaterialIcon } from '../shared/MaterialIcon';
 import SearchBar from '../search/SearchBar';
+import { useUIStore } from '../../state/ui-store';
 
 interface TopBarProps {
   onSidebarToggle: () => void;
@@ -14,13 +15,15 @@ interface TopBarProps {
  * - Typography: Space Grotesk for title
  */
 function TopBar({ onSidebarToggle, sidebarCollapsed }: TopBarProps) {
+  const { toggleSettings } = useUIStore();
+
   return (
     <header className="h-12 flex items-center justify-between px-4 border-b border-outline-variant/15 bg-surface-topbar shrink-0 fixed top-0 left-0 right-0 z-50">
       {/* Left: Sidebar toggle + Logo */}
       <div className="flex items-center gap-4">
         <button
           onClick={onSidebarToggle}
-          className="text-on-surface-variant hover:text-primary transition-colors duration-150"
+          className="p-1.5 rounded-md text-on-surface-variant hover:text-primary hover:bg-surface-container/50 transition-all duration-150"
           title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           <MaterialIcon name="vertical_split" size={20} />
@@ -47,6 +50,7 @@ function TopBar({ onSidebarToggle, sidebarCollapsed }: TopBarProps) {
         <button
           className="text-on-surface-variant hover:text-primary transition-colors duration-150 scale-95 transition-transform duration-100"
           title="Settings"
+          onClick={toggleSettings}
         >
           <MaterialIcon name="settings" size={20} />
         </button>

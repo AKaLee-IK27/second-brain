@@ -4,7 +4,7 @@ import { useUIStore } from '../state/ui-store';
 
 export function useKeyboardShortcuts() {
   const { createNote } = useNoteStore();
-  const { toggleCommandPalette, toggleSidebar, toggleRightPanel, toggleFocusMode, toggleShortcutHelp, setCommandPaletteOpen, toggleGraphOverlay, setGraphOverlayOpen } = useUIStore();
+  const { toggleCommandPalette, toggleSidebar, toggleRightPanel, toggleFocusMode, toggleShortcutHelp, setCommandPaletteOpen, toggleGraphOverlay, setGraphOverlayOpen, toggleSettings } = useUIStore();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -61,10 +61,13 @@ export function useKeyboardShortcuts() {
         if (useUIStore.getState().graphOverlayOpen) {
           setGraphOverlayOpen(false);
         }
+        if (useUIStore.getState().settingsOpen) {
+          toggleSettings();
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [createNote, toggleCommandPalette, toggleSidebar, toggleRightPanel, toggleFocusMode, toggleShortcutHelp, setCommandPaletteOpen]);
+  }, [createNote, toggleCommandPalette, toggleSidebar, toggleRightPanel, toggleFocusMode, toggleShortcutHelp, setCommandPaletteOpen, toggleSettings, toggleGraphOverlay, setGraphOverlayOpen]);
 }
