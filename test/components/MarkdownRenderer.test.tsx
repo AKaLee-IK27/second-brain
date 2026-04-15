@@ -58,7 +58,7 @@ describe('MarkdownRenderer', () => {
     const h2 = container!.querySelector('h2');
 
     expect(h1?.getAttribute('id')).toBe('introduction');
-    expect(h2?.getAttribute('id')).toContain('unknown-heading');
+    expect(h2?.getAttribute('id')).toBe('unknown-heading');
   });
 
   it('renders without headingIds prop (backward compatible)', async () => {

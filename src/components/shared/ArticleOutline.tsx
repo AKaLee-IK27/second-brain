@@ -1,11 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { MaterialIcon } from './MaterialIcon';
-
-export interface HeadingItem {
-  id: string;
-  level: number;  // 1-6
-  text: string;
-}
+import { HeadingItem } from '../../utils/headingUtils';
 
 export interface ArticleOutlineProps {
   headings: HeadingItem[];
@@ -107,7 +102,7 @@ export function ArticleOutline({ headings, activeHeadingId, onHeadingClick }: Ar
       </h3>
       <div
         className={`overflow-hidden transition-[max-height] duration-200 ease-in-out ${
-          isCollapsed ? 'max-h-0' : 'max-h-[500px]'
+          isCollapsed ? 'max-h-0' : 'max-h-[800px]'
         }`}
       >
         <ul role="list" className="flex flex-col gap-3">

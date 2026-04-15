@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
 import { api } from '../services/api';
@@ -6,9 +6,10 @@ import { MarkdownRenderer } from '../components/shared/MarkdownRenderer';
 import { LoadingSkeleton } from '../components/shared/LoadingSkeleton';
 import { EmptyState } from '../components/shared/EmptyState';
 import { MaterialIcon } from '../components/shared/MaterialIcon';
-import { ArticleOutline, HeadingItem } from '../components/shared/ArticleOutline';
+import { ArticleOutline } from '../components/shared/ArticleOutline';
 import { extractHeadings } from '../utils/headingUtils';
 import { useScrollSpy } from '../hooks/useScrollSpy';
+import { useHeadingScroll, buildHeadingIdMap } from '../hooks/useHeadingScroll';
 import { format } from 'date-fns';
 
 const typeColors: Record<string, string> = {
@@ -33,6 +34,22 @@ export default function TopicDetailPage() {
 
   const contentContainerRef = useRef<HTMLDivElement>(null);
 
+  // Extract headings with IDs - memoized to prevent re-computation on every render
+  // MUST be called before early returns to satisfy Rules of Hooks
+  const body = data?.body ?? '';
+  const headings = useMemo(() => extractHeadings(body), [body]);
+
+  // Build heading ID map for MarkdownRenderer - memoized to prevent re-creating Map
+  const headingIdsMap = useMemo(() => buildHeadingIdMap(headings), [headings]);
+
+  // Active heading tracking - memoized array to prevent useEffect re-runs
+  const headingIdList = useMemo(() => headings.map((h) => h.id), [headings]);
+  const activeHeadingId = useScrollSpy(contentContainerRef, headingIdList);
+
+  // Scroll to heading on click
+  const handleHeadingClick = useHeadingScroll(contentContainerRef);
+
+  // Early returns AFTER all hooks
   if (loading) return <LoadingSkeleton lines={15} />;
   if (error)
     return (
@@ -51,34 +68,9 @@ export default function TopicDetailPage() {
       />
     );
 
-  const { frontmatter, body } = data;
+  const { frontmatter } = data;
   const sourceSession = frontmatter.sourceSession as string | undefined;
   const relatedTopics = frontmatter.relatedTopics as string[] | undefined;
-
-  // Extract headings with IDs
-  const headings: HeadingItem[] = extractHeadings(body);
-
-  // Build heading ID map for MarkdownRenderer
-  const headingIdsMap = new Map<string, string>();
-  headings.forEach((h) => {
-    headingIdsMap.set(h.text, h.id);
-  });
-
-  // Active heading tracking
-  const activeHeadingId = useScrollSpy(contentContainerRef, headings.map((h) => h.id));
-
-  // Scroll to heading on click
-  const handleHeadingClick = (id: string) => {
-    const container = contentContainerRef.current;
-    const target = container?.querySelector(`[id="${id}"]`) as HTMLElement | null;
-    if (target && container) {
-      const top = target.offsetTop - container.offsetTop;
-      container.scrollTo({
-        top,
-        behavior: 'smooth',
-      });
-    }
-  };
 
   const wordCount = body.split(/\s+/).length;
   const readTime = Math.max(1, Math.ceil(wordCount / 200));

@@ -1,3 +1,4 @@
+import { useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
 import { api } from '../services/api';
@@ -5,6 +6,10 @@ import { MarkdownRenderer } from '../components/shared/MarkdownRenderer';
 import { LoadingSkeleton } from '../components/shared/LoadingSkeleton';
 import { EmptyState } from '../components/shared/EmptyState';
 import { SmartIcon, Wrench } from '../components/shared/AgentIcons';
+import { ArticleOutline } from '../components/shared/ArticleOutline';
+import { extractHeadings } from '../utils/headingUtils';
+import { useScrollSpy } from '../hooks/useScrollSpy';
+import { useHeadingScroll, buildHeadingIdMap } from '../hooks/useHeadingScroll';
 import { formatDistanceToNow } from 'date-fns';
 
 const statusColors: Record<string, string> = {
@@ -25,6 +30,24 @@ export default function SkillDetailPage() {
     [slug],
   );
 
+  const contentContainerRef = useRef<HTMLDivElement>(null);
+
+  // Extract headings with IDs - memoized to prevent re-computation on every render
+  // MUST be called before early returns to satisfy Rules of Hooks
+  const body = data?.body ?? '';
+  const headings = useMemo(() => extractHeadings(body), [body]);
+
+  // Build heading ID map for MarkdownRenderer - memoized to prevent re-creating Map
+  const headingIdsMap = useMemo(() => buildHeadingIdMap(headings), [headings]);
+
+  // Active heading tracking - memoized array to prevent useEffect re-runs
+  const headingIdList = useMemo(() => headings.map((h) => h.id), [headings]);
+  const activeHeadingId = useScrollSpy(contentContainerRef, headingIdList);
+
+  // Scroll to heading on click
+  const handleHeadingClick = useHeadingScroll(contentContainerRef);
+
+  // Early returns AFTER all hooks
   if (loading) return <LoadingSkeleton lines={15} />;
   if (error)
     return (
@@ -43,12 +66,12 @@ export default function SkillDetailPage() {
       />
     );
 
-  const { frontmatter, body } = data;
+  const { frontmatter } = data;
 
   return (
     <div className="flex h-full">
       {/* Center Panel: Skill Profile */}
-      <div className="flex-1 overflow-y-auto">
+      <div ref={contentContainerRef} className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto px-12 py-8">
           {/* Skill Header */}
           <div className="mb-12">
@@ -75,7 +98,7 @@ export default function SkillDetailPage() {
 
           {/* Markdown Content */}
           <article className="markdown-body">
-            <MarkdownRenderer content={body} />
+            <MarkdownRenderer content={body} headingIds={headingIdsMap} />
           </article>
 
           {/* Used In */}
@@ -105,6 +128,14 @@ export default function SkillDetailPage() {
 
       {/* Right Panel: Metadata Rail */}
       <aside className="w-80 bg-surface-container-lowest/30 px-6 py-8 flex flex-col gap-10 overflow-y-auto border-l border-outline-variant/10">
+        {/* Outline */}
+        <ArticleOutline
+          headings={headings}
+          activeHeadingId={activeHeadingId}
+          onHeadingClick={handleHeadingClick}
+        />
+
+        {/* Skill Profile */}
         <section>
           <h3 className="font-mono text-[10px] text-outline-variant uppercase tracking-[0.2em] mb-4">Skill Profile</h3>
           <div className="space-y-3 font-mono text-[10px]">

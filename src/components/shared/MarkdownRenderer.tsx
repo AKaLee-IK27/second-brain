@@ -12,17 +12,6 @@ interface MarkdownRendererProps {
   headingIds?: Map<string, string>;
 }
 
-/**
- * Generates a URL-safe slug from heading text.
- */
-function generateSlug(text: string, index: number): string {
-  const base = text
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/g, '');
-  return base || `heading-h-${index}`;
-}
-
 export function MarkdownRenderer({ content, className, headingIds }: MarkdownRendererProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -49,15 +38,25 @@ export function MarkdownRenderer({ content, className, headingIds }: MarkdownRen
           }
 
           if (!id) {
-            id = generateSlug(cleanText, headingIndex);
+            // Fallback: generate a semantic slug with duplicate handling
+            const base = cleanText
+              .toLowerCase()
+              .replace(/\s+/g, '-')
+              .replace(/[^a-z0-9-]/g, '');
+
+            if (!base) {
+              // Fallback for text with only special characters
+              id = `heading-h${depth}-${headingIndex}`;
+            } else {
+              const count = slugCounts[base] || 0;
+              slugCounts[base] = count + 1;
+              id = count > 0 ? `${base}-${count}` : base;
+            }
           }
 
-          const count = slugCounts[id] || 0;
-          slugCounts[id] = count + 1;
-          const finalId = count > 0 ? `${id}-${count}` : id;
           headingIndex++;
 
-          return `<h${depth} id="${finalId}">${text}</h${depth}>`;
+          return `<h${depth} id="${id}">${text}</h${depth}>`;
         };
 
         html = marked.parse(content, { renderer }) as string;

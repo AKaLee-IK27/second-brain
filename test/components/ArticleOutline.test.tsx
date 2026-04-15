@@ -125,8 +125,8 @@ describe('ArticleOutline', () => {
     const expandButton = screen.getByRole('button', { name: /expand outline/i });
     fireEvent.click(expandButton);
 
-    // Should be expanded - check for max-h-[500px] class
-    const expandedContainer = toggleButton.closest('section')?.querySelector('[class*="max-h-\\[500px\\]"]');
+    // Should be expanded - check for max-h-[800px] class
+    const expandedContainer = toggleButton.closest('section')?.querySelector('[class*="max-h-\\[800px\\]"]');
     expect(expandedContainer).toBeTruthy();
   });
 

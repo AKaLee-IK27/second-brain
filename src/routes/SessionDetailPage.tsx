@@ -1,3 +1,4 @@
+import { useRef, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
 import { api } from '../services/api';
@@ -7,6 +8,10 @@ import { LoadingSkeleton } from '../components/shared/LoadingSkeleton';
 import { EmptyState } from '../components/shared/EmptyState';
 import { KnowledgeSnippetsList } from '../components/knowledge/KnowledgeSnippetsList';
 import { MaterialIcon } from '../components/shared/MaterialIcon';
+import { ArticleOutline } from '../components/shared/ArticleOutline';
+import { extractHeadings } from '../utils/headingUtils';
+import { useScrollSpy } from '../hooks/useScrollSpy';
+import { useHeadingScroll, buildHeadingIdMap } from '../hooks/useHeadingScroll';
 import { format } from 'date-fns';
 
 function statusBadgeColor(status: string): string {
@@ -38,21 +43,31 @@ export default function SessionDetailPage() {
 
   const { snippets, loading: knowledgeLoading } = useKnowledge(id);
 
+  const contentContainerRef = useRef<HTMLDivElement>(null);
+
+  // Extract headings with IDs - memoized to prevent re-computation on every render
+  // MUST be called before early returns to satisfy Rules of Hooks
+  const body = session?.body ?? '';
+  const headings = useMemo(() => extractHeadings(body), [body]);
+
+  // Build heading ID map for MarkdownRenderer - memoized to prevent re-creating Map
+  const headingIdsMap = useMemo(() => buildHeadingIdMap(headings), [headings]);
+
+  // Active heading tracking - memoized array to prevent useEffect re-runs
+  const headingIdList = useMemo(() => headings.map((h) => h.id), [headings]);
+  const activeHeadingId = useScrollSpy(contentContainerRef, headingIdList);
+
+  // Scroll to heading on click
+  const handleHeadingClick = useHeadingScroll(contentContainerRef);
+
+  // Early returns AFTER all hooks
   if (loading) return <LoadingSkeleton lines={15} />;
   if (error) return <EmptyState title="Error" description={error.message} action={{ label: "Back to Sessions", onClick: () => navigate('/sessions') }} />;
   if (!session) return <EmptyState title="Session not found" description="" action={{ label: "Back to Sessions", onClick: () => navigate('/sessions') }} />;
 
-  const { frontmatter, body } = session;
+  const { frontmatter } = session;
   const relatedTopics = frontmatter.relatedTopics;
   const parentSession = frontmatter.parentSession;
-
-  // Extract headings for outline
-  const headingRegex = /^(#{1,3})\s+(.+)$/gm;
-  const headings: { level: number; text: string }[] = [];
-  let match;
-  while ((match = headingRegex.exec(body)) !== null) {
-    headings.push({ level: match[1].length, text: match[2] });
-  }
 
   // Estimate word count and read time
   const wordCount = body.split(/\s+/).length;
@@ -61,18 +76,18 @@ export default function SessionDetailPage() {
   return (
     <div className="flex h-full">
       {/* Center Panel: Article Body */}
-      <div className="flex-1 overflow-y-auto">
+      <div ref={contentContainerRef} className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto px-12 py-8">
           {/* Session Header Metadata */}
           <div className="mb-12 font-mono text-[11px] uppercase tracking-wider text-on-surface-variant flex items-center justify-between">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1">
                 <MaterialIcon name="calendar_today" size={14} />
-                {format(new Date(frontmatter.createdAt), 'yyyy-MM-dd')}
+                {frontmatter.createdAt ? format(new Date(frontmatter.createdAt), 'yyyy-MM-dd') : 'Unknown'}
               </span>
               <span className="flex items-center gap-1">
                 <MaterialIcon name="schedule" size={14} />
-                {format(new Date(frontmatter.createdAt), 'HH:mm')}
+                {frontmatter.createdAt ? format(new Date(frontmatter.createdAt), 'HH:mm') : '--:--'}
               </span>
               {frontmatter.tags && frontmatter.tags.length > 0 && (
                 <span className={`px-2 py-0.5 rounded-full ${statusBadgeColor(frontmatter.status)}`}>
@@ -88,7 +103,7 @@ export default function SessionDetailPage() {
           {/* Markdown Content Body */}
           <article className="markdown-body">
             <h1>{frontmatter.title}</h1>
-            <MarkdownRenderer content={body} />
+            <MarkdownRenderer content={body} headingIds={headingIdsMap} />
           </article>
 
           {/* Tags */}
@@ -146,25 +161,11 @@ export default function SessionDetailPage() {
       {/* Right Panel: Metadata Rail */}
       <aside className="w-80 bg-surface-container-lowest/30 px-6 py-8 flex flex-col gap-10 overflow-y-auto border-l border-outline-variant/10">
         {/* Outline */}
-        {headings.length > 0 && (
-          <section>
-            <h3 className="font-mono text-[10px] text-outline-variant uppercase tracking-[0.2em] mb-4 flex items-center justify-between">
-              <span>Outline</span>
-              <MaterialIcon name="segment" size={14} />
-            </h3>
-            <ul className="flex flex-col gap-3 font-headline text-sm text-on-surface-variant">
-              {headings.map((h, i) => (
-                <li
-                  key={i}
-                  className={`hover:text-primary cursor-pointer transition-colors flex items-center gap-2 ${h.level > 1 ? 'pl-4 border-l border-outline-variant/20' : ''}`}
-                >
-                  {h.level === 1 && <span className="w-1 h-1 bg-primary-container rounded-full" />}
-                  {h.text}
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+        <ArticleOutline
+          headings={headings}
+          activeHeadingId={activeHeadingId}
+          onHeadingClick={handleHeadingClick}
+        />
 
         {/* Stats */}
         <section className="mt-auto">
@@ -179,11 +180,11 @@ export default function SessionDetailPage() {
             </div>
             <div className="flex items-center justify-between mb-4">
               <span className="text-[10px] font-mono text-outline-variant">TOKENS</span>
-              <span className="text-[10px] font-mono text-on-surface">{frontmatter.tokens.total?.toLocaleString()}</span>
+              <span className="text-[10px] font-mono text-on-surface">{frontmatter.tokens?.total?.toLocaleString() ?? '0'}</span>
             </div>
             <div className="flex items-center justify-between mb-4">
               <span className="text-[10px] font-mono text-outline-variant">COST</span>
-              <span className="text-[10px] font-mono text-tertiary">${frontmatter.cost?.toFixed(2)}</span>
+              <span className="text-[10px] font-mono text-tertiary">${frontmatter.cost?.toFixed(2) ?? '0.00'}</span>
             </div>
             <div className="h-1 bg-surface-container-low rounded-full overflow-hidden">
               <div className="h-full bg-primary-container w-2/3" />
