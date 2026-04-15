@@ -1,5 +1,4 @@
 import { MaterialIcon } from '../shared/MaterialIcon';
-import SearchBar from '../search/SearchBar';
 import { useUIStore } from '../../state/ui-store';
 
 interface TopBarProps {
@@ -15,7 +14,7 @@ interface TopBarProps {
  * - Typography: Space Grotesk for title
  */
 function TopBar({ onSidebarToggle, sidebarCollapsed }: TopBarProps) {
-  const { toggleSettings } = useUIStore();
+  const { toggleSettings, setCommandPaletteOpen } = useUIStore();
 
   return (
     <header className="h-12 flex items-center justify-between px-4 border-b border-outline-variant/15 bg-surface-topbar shrink-0 fixed top-0 left-0 right-0 z-50">
@@ -33,9 +32,18 @@ function TopBar({ onSidebarToggle, sidebarCollapsed }: TopBarProps) {
         </h1>
       </div>
 
-      {/* Center: Global Search */}
+      {/* Center: Global Search Trigger */}
       <div className="flex-1 max-w-xl mx-4">
-        <SearchBar />
+        <button
+          onClick={() => setCommandPaletteOpen(true)}
+          className="flex items-center gap-2 w-full px-3 py-1.5 rounded-lg border border-outline-variant/15 
+                     bg-surface-container-lowest hover:border-primary/30 transition-colors cursor-text"
+        >
+          <MaterialIcon name="search" size={16} className="text-outline-variant" />
+          <span className="text-sm text-outline-variant">Search...</span>
+          <kbd className="ml-auto text-[10px] text-outline-variant bg-surface-container-high border 
+                          border-outline-variant/30 rounded px-1.5 py-0.5 font-mono">⌘K</kbd>
+        </button>
       </div>
 
       {/* Right: Refresh + Settings */}

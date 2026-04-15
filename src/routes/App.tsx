@@ -11,6 +11,7 @@ import Breadcrumbs from '../components/layout/Breadcrumbs';
 import { UnifiedGraph } from '../components/graph/UnifiedGraph';
 import { GraphLegend } from '../components/graph/GraphLegend';
 import { SettingsPanel } from '../components/settings/SettingsPanel';
+import CommandPalette from '../components/search/CommandPalette';
 import type { GraphNode, GraphEdge } from '../types/graph';
 import SetupPage from './SetupPage';
 import NotFoundPage from './NotFoundPage';
@@ -29,7 +30,7 @@ import OpenCodePage from './OpenCodePage';
 
 function App() {
   const { isConfigured } = useAppStore();
-  const { graphOverlayOpen, setGraphOverlayOpen, settingsOpen } = useUIStore();
+  const { graphOverlayOpen, setGraphOverlayOpen, settingsOpen, commandPaletteOpen } = useUIStore();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const navigate = useNavigate();
 
@@ -157,6 +158,9 @@ function App() {
 
       {/* Settings Panel */}
       {settingsOpen && <SettingsPanel />}
+
+      {/* Command Palette Overlay */}
+      {commandPaletteOpen && <CommandPalette />}
     </div>
   );
 }
